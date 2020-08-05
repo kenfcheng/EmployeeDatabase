@@ -115,8 +115,8 @@ function viewAllEmp() {
 // View employees by department
 function viewAllEmpByDept() {
   let deptArr = [];
-
-  promisemysql
+  //Promise Mysql
+  promiseMySql
     .createConnection(connectionProperties)
     .then((conn) => {
       return conn.query("SELECT name FROM department");
@@ -151,4 +151,38 @@ function viewAllEmpByDept() {
 }
 
 // view employees by role
-function viewAllEmpByRole(){
+function viewAllEmpByRole() {
+  let roleArr = [];
+
+  //Promise Mysql
+
+  promiseMySql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      return conn.query("SELECT title FROM role");
+    })
+    .then(function (roles) {
+      for (i = 0; i < roles.length; i++) {
+        roleArr.push(roles[i].title);
+      }
+    })
+    .then(() => {
+      inquirer
+        .prompt({
+          name: "role",
+          type: "list",
+          message: "Which role would you like to search?",
+          choices: roleArr,
+        })
+        .then((answer) => {
+          const query = `SELECT emp.id AS ID, emp.first_name AS 'First Name', emp.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(man.first_name, ' ' ,  man.last_name) AS Manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
+          connection.query(query, (err, res) => {
+            if (err) return err;
+
+            console.log("\n");
+            console.table(res);
+            mainMenu();
+          });
+        });
+    });
+}
