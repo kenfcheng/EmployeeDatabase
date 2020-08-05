@@ -149,3 +149,6 @@ function viewAllEmpByDept() {
         });
     });
 }
+
+// view employees by role
+function viewAllEmpByRole(){
