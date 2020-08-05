@@ -186,3 +186,49 @@ function viewAllEmpByRole() {
         });
     });
 }
+// Add employee
+function addEmp(){
+     let roleArr = [];
+     let managerArr = [];
+ //Promise mysql
+     promisemysql.createConnection(connectionProperties
+     ).then((conn) => {
+ 
+         return Promise.all([
+             conn.query('SELECT id, title FROM role ORDER BY title ASC'), 
+             conn.query("SELECT emp.id, concat(emp.first_name, ' ' ,  emp.last_name) AS Employee FROM employee ORDER BY Employee ASC")
+         ]);
+     }).then(([roles, managers]) => {
+ 
+         for (i=0; i < roles.length; i++){
+             roleArr.push(roles[i].title);
+         }
+ 
+         for (i=0; i < managers.length; i++){
+             managerArr.push(managers[i].Employee);
+         }
+ 
+         return Promise.all([roles, managers]);
+     }).then(([roles, managers]) => {
+ 
+         // add option for no manager
+         managerArr.unshift('--');
+ 
+         inquirer.prompt([
+             {
+                 // Prompt user of their first name
+                 name: "firstName",
+                 type: "input",
+                 message: "First name: ",
+                 // Validate field is not blank
+                 validate: function(input){
+                     if (input === ""){
+                         console.log("**FIELD REQUIRED**");
+                         return false;
+                     }
+                     else{
+                         return true;
+                     }
+                 }
+             },
+             {
