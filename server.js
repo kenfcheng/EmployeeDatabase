@@ -22,12 +22,10 @@ connection.connect((err) => {
   mainMenu();
 });
 
-
 // Main Menu
-function mainMenu(){
-
-    // User Chooses an Option
-    inquirer
+function mainMenu() {
+  // User Chooses an Option
+  inquirer
     .prompt({
       name: "action",
       type: "list",
@@ -45,7 +43,55 @@ function mainMenu(){
         "Delete employee",
         "Delete role",
         "Delete department",
-        "View department budgets"
-      ]
+        "View department budgets",
+      ],
     })
     .then((answer) => {
+      // Case and Switches
+      switch (answer.action) {
+        case "View all employees":
+          viewAllEmp();
+          break;
+
+        case "View employees by department":
+          viewAllEmpByDept();
+          break;
+
+        case "View employees by role":
+          viewAllEmpByRole();
+          break;
+
+        case "Add employee":
+          addEmp();
+          break;
+
+        case "Add department":
+          addDept();
+          break;
+        case "Add role":
+          addRole();
+          break;
+        case "Update employee role":
+          updateEmpRole();
+          break;
+        case "Update employee manager":
+          updateEmpMngr();
+          break;
+        case "View employees by manager":
+          viewAllEmpByMngr();
+          break;
+        case "Delete employee":
+          deleteEmp();
+          break;
+        case "View department budgets":
+          viewDeptBudget();
+          break;
+        case "Delete role":
+          deleteRole();
+          break;
+        case "Delete department":
+          deleteDept();
+          break;
+      }
+    });
+}
