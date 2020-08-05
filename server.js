@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const consoleTable = require("console.table");
-const promisemysql = require("promise-mysql");
+const promiseMySql = require("promise-mysql");
 
 // Connecton Property
 const connectionProperties = {
@@ -94,4 +94,20 @@ function mainMenu() {
           break;
       }
     });
+}
+
+// View all employees
+function viewAllEmp() {
+  let query =
+    "SELECT emp.id, emp.first_name, emp.last_name, role.title, department.name AS department, role.salary, concat(man.first_name, ' ' ,  man.last_name) AS manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id ORDER BY ID ASC";
+
+  connection.query(query, function (err, res) {
+    if (err) return err;
+    console.log("\n");
+
+    console.table(res);
+
+    //Returns to main menu
+    mainMenu();
+  });
 }
