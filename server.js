@@ -113,4 +113,39 @@ function viewAllEmp() {
 }
 
 // View employees by department
-function viewAllEmpByDept(){
+function viewAllEmpByDept() {
+  let deptArr = [];
+
+  promisemysql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      return conn.query("SELECT name FROM department");
+    })
+    .then(function (value) {
+      deptQuery = value;
+      for (i = 0; i < value.length; i++) {
+        deptArr.push(value[i].name);
+      }
+    })
+    .then(() => {
+      inquirer
+        .prompt({
+          name: "department",
+          type: "list",
+          message: "Which department would you like to search?",
+          choices: deptArr,
+        })
+        .then((answer) => {
+          const query = `SELECT emp.id AS ID, emp.first_name AS 'First Name', emp.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(man.first_name, ' ' ,  man.last_name) AS Manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id WHERE dep.name = '${answer.department}' ORDER BY ID ASC`;
+          connection.query(query, (err, res) => {
+            if (err) return err;
+
+            console.log("\n");
+            console.table(res);
+
+            // Returns to main menu
+            mainMenu();
+          });
+        });
+    });
+}
