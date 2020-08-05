@@ -111,3 +111,6 @@ function viewAllEmp() {
     mainMenu();
   });
 }
+
+// View employees by department
+function viewAllEmpByDept(){
