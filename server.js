@@ -460,3 +460,77 @@ function updateEmpRole() {
         });
     });
 }
+
+// Update employee manager
+function updateEmpMngr() {
+  // set global array for employees
+  let employeeArr = [];
+
+  promisemysql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      return conn.query(
+        "SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC"
+      );
+    })
+    .then((employees) => {
+      // Employee Array
+      for (i = 0; i < employees.length; i++) {
+        employeeArr.push(employees[i].Employee);
+      }
+
+      return employees;
+    })
+    .then((employees) => {
+      inquirer
+        .prompt([
+          {
+            //Selects Employee
+            name: "employee",
+            type: "list",
+            message: "Who would you like to edit?",
+            choices: employeeArr,
+          },
+          {
+            // Selects New Manager
+            name: "manager",
+            type: "list",
+            message: "Who is their new Manager?",
+            choices: employeeArr,
+          },
+        ])
+        .then((answer) => {
+          let employeeID;
+          let managerID;
+
+          // Manager ID
+          for (i = 0; i < employees.length; i++) {
+            if (answer.manager == employees[i].Employee) {
+              managerID = employees[i].id;
+            }
+          }
+
+          // Employee ID
+          for (i = 0; i < employees.length; i++) {
+            if (answer.employee == employees[i].Employee) {
+              employeeID = employees[i].id;
+            }
+          }
+
+          connection.query(
+            `UPDATE employee SET manager_id = ${managerID} WHERE id = ${employeeID}`,
+            (err, res) => {
+              if (err) return err;
+
+              // confirm employee update
+              console.log(
+                `\n ${answer.employee} MANAGER UPDATED TO ${answer.manager}...\n`
+              );
+
+              // go back to main menu
+              mainMenu();
+            }
+          );
+        });
+    });
+}
