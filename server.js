@@ -830,3 +830,49 @@ function deleteDept() {
     });
 }
 //////////////////////////////////////////////////////////////
+
+//  Department Budget
+function viewDeptBudget() {
+  promiseMySql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      return Promise.all([
+        // Departments and Salaries
+        conn.query(
+          "SELECT department.name AS department, role.salary FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dept.id ORDER BY department ASC"
+        ),
+        conn.query("SELECT name FROM department ORDER BY name ASC"),
+      ]);
+    })
+    .then(([deptSalaies, departments]) => {
+      let deptBudgetArr = [];
+      let department;
+
+      for (d = 0; d < departments.length; d++) {
+        let departmentBudget = 0;
+
+        // add all salaries together
+        for (i = 0; i < deptSalaies.length; i++) {
+          if (departments[d].name == deptSalaies[i].department) {
+            departmentBudget += deptSalaies[i].salary;
+          }
+        }
+
+        // create new property with budgets
+        department = {
+          Department: departments[d].name,
+          Budget: departmentBudget,
+        };
+
+        // add to array
+        deptBudgetArr.push(department);
+      }
+      console.log("\n");
+
+      // display departments budgets using console.table
+      console.table(deptBudgetArr);
+
+      // back to main menu
+      mainMenu();
+    });
+}
