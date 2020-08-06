@@ -1,13 +1,13 @@
 // Variable Declarations
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const consoleTable = require("console.table");
 const promiseMySql = require("promise-mysql");
+const consoleTable = require("console.table");
 
 // Connecton Property
 const connectionProperties = {
   host: "localhost",
-  port: 3301,
+  port: 8080,
   user: "root",
   password: "Kenfacheng1",
   database: "employees_DB",
