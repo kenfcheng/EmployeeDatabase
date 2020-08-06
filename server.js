@@ -628,7 +628,7 @@ function deleteEmp() {
             name: "yesNo",
             type: "list",
             message: "Confirm deletion",
-            choices: ["NO", "YES"],
+            choices: ["YES", "NO"],
           },
         ])
         .then((answer) => {
@@ -666,3 +666,84 @@ function deleteEmp() {
     });
 }
 ////////////////////////////////////////////////////////
+
+// Delete Role
+function deleteRole() {
+  // role array
+  let roleArr = [];
+
+  promiseMySql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      // query all roles
+      return conn.query("SELECT id, title FROM role");
+    })
+    .then((roles) => {
+      for (i = 0; i < roles.length; i++) {
+        roleArr.push(roles[i].title);
+      }
+
+      inquirer
+        .prompt([
+          {
+            name: "continueDelete",
+            type: "list",
+            message:
+              "*** WARNING *** Deleting role will delete all employees associated with the role. Do you want to continue?",
+            choices: ["YES", "NO"],
+          },
+        ])
+        .then((answer) => {
+          if (answer.continueDelete === "NO") {
+            mainMenu();
+          }
+        })
+        .then(() => {
+          inquirer
+            .prompt([
+              {
+                // prompt user of of roles
+                name: "role",
+                type: "list",
+                message: "Which role would you like to delete?",
+                choices: roleArr,
+              },
+              {
+                // Type role to confirm delete
+                name: "confirmDelete",
+                type: "Input",
+                message:
+                  "Type the role title EXACTLY to confirm deletion of the role",
+              },
+            ])
+            .then((answer) => {
+              if (answer.confirmDelete === answer.role) {
+                let roleID;
+                for (i = 0; i < roles.length; i++) {
+                  if (answer.role == roles[i].title) {
+                    roleID = roles[i].id;
+                  }
+                }
+
+                // delete role
+                connection.query(
+                  `DELETE FROM role WHERE id=${roleID};`,
+                  (err, res) => {
+                    if (err) return err;
+
+                    // confirm role has been added
+                    console.log(`\n ROLE '${answer.role}' DELETED...\n `);
+
+                    mainMenu();
+                  }
+                );
+              } else {
+                console.log(`\n ROLE '${answer.role}' NOT DELETED...\n `);
+
+                mainMenu();
+              }
+            });
+        });
+    });
+}
+////////////////////////////////////////////////////////////////////
