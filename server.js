@@ -21,7 +21,7 @@ connection.connect((err) => {
   console.log("\n EMPLOYEE TRACKER \n");
   mainMenu();
 });
-
+////////////////////////////////////////////////////////////////
 // Main Menu
 function mainMenu() {
   // User Chooses an Option
@@ -95,7 +95,7 @@ function mainMenu() {
       }
     });
 }
-
+/////////////////////////////////////////////////////
 // View all employees
 function viewAllEmp() {
   let query =
@@ -111,7 +111,7 @@ function viewAllEmp() {
     mainMenu();
   });
 }
-
+/////////////////////////////////////////////////////
 // View employees by department
 function viewAllEmpByDept() {
   let deptArr = [];
@@ -149,7 +149,7 @@ function viewAllEmpByDept() {
         });
     });
 }
-
+////////////////////////////////////////////////////////
 // view employees by role
 function viewAllEmpByRole() {
   let roleArr = [];
@@ -299,7 +299,7 @@ function addEmp() {
         });
     });
 }
-
+/////////////////////////////////////////////////////
 // Add Role
 function addRole() {
   //Dept. Array
@@ -362,7 +362,7 @@ function addRole() {
         });
     });
 }
-
+/////////////////////////////////////////////////////
 // Add Department
 function addDept() {
   inquirer
@@ -384,7 +384,7 @@ function addDept() {
       );
     });
 }
-
+/////////////////////////////////////////////////////////////
 function updateEmpRole() {
   // create employee and role array
   let employeeArr = [];
@@ -460,13 +460,13 @@ function updateEmpRole() {
         });
     });
 }
-
+//////////////////////////////////////////////////////////////
 // Update employee manager
 function updateEmpMngr() {
   // set global array for employees
   let employeeArr = [];
 
-  promisemysql
+  promiseMySql
     .createConnection(connectionProperties)
     .then((conn) => {
       return conn.query(
@@ -534,3 +534,65 @@ function updateEmpMngr() {
         });
     });
 }
+// ---------------------------------------------------------
+// View all employees (manager)
+function viewAllEmpByMngr() {
+  //  manager array
+  let managerArr = [];
+
+  promiseMySql
+    .createConnection(connectionProperties)
+    .then((conn) => {
+      // Query all employees
+      return conn.query(
+        "SELECT DISTINCT man.id, CONCAT(m.first_name, ' ', man.last_name) AS manager FROM employee e Inner JOIN employee m ON e.manager_id = man.id"
+      );
+    })
+    .then(function (managers) {
+      for (i = 0; i < managers.length; i++) {
+        managerArr.push(managers[i].manager);
+      }
+
+      return managers;
+    })
+    .then((managers) => {
+      inquirer
+        .prompt({
+          // Prompt user for manager
+          name: "manager",
+          type: "list",
+          message: "Which manager would you like to search?",
+          choices: managerArr,
+        })
+        .then((answer) => {
+          let managerID;
+
+          // Gets selected manager ID
+          for (i = 0; i < managers.length; i++) {
+            if (answer.manager == managers[i].manager) {
+              managerID = managers[i].id;
+            }
+          }
+
+          // query all employees by selected manager
+          const query = `SELECT emp.id, emp.first_name, emp.last_name, role.title, department.name AS department, role.salary, concat(man.first_name, ' ' ,  man.last_name) AS manager
+            FROM employee e
+            LEFT JOIN employee m ON emp.manager_id = man.id
+            INNER JOIN role ON emp.role_id = role.id
+            INNER JOIN department ON role.department_id = dep.id
+            WHERE emp.manager_id = ${managerID};`;
+
+          connection.query(query, (err, res) => {
+            if (err) return err;
+
+            // display results with console.table
+            console.log("\n");
+            console.table(res);
+
+            // back to main menu
+            mainMenu();
+          });
+        });
+    });
+}
+///////////////////////////////////////////////////////////
