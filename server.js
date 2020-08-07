@@ -7,7 +7,7 @@ const consoleTable = require("console.table");
 // Connecton Property
 const connectionProperties = {
   host: "localhost",
-  port: 8080,
+  port: 3306,
   user: "root",
   password: "Kenfacheng1",
   database: "employees_DB",
@@ -40,10 +40,6 @@ function mainMenu() {
         "Add department",
         "Update employee role",
         "Update employee manager",
-        "Delete employee",
-        "Delete role",
-        "Delete department",
-        "View department budgets",
       ],
     })
     .then((answer) => {
@@ -80,18 +76,6 @@ function mainMenu() {
         case "View employees by manager":
           viewAllEmpByMngr();
           break;
-        case "Delete employee":
-          deleteEmp();
-          break;
-        case "View department budgets":
-          viewDeptBudget();
-          break;
-        case "Delete role":
-          deleteRole();
-          break;
-        case "Delete department":
-          deleteDept();
-          break;
       }
     });
 }
@@ -99,9 +83,9 @@ function mainMenu() {
 // View all employees
 function viewAllEmp() {
   let query =
-    "SELECT emp.id, emp.first_name, emp.last_name, role.title, department.name AS department, role.salary, concat(man.first_name, ' ' ,  man.last_name) AS manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id ORDER BY ID ASC";
+    "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM eloyee e LEFT JOIN eloyee m ON e.managerager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY ID ASC";
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     if (err) return err;
     console.log("\n");
 
@@ -136,7 +120,7 @@ function viewAllEmpByDept() {
           choices: deptArr,
         })
         .then((answer) => {
-          const query = `SELECT emp.id AS ID, emp.first_name AS 'First Name', emp.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(man.first_name, ' ' ,  man.last_name) AS Manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id WHERE dep.name = '${answer.department}' ORDER BY ID ASC`;
+          const query = `SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(m.first_name, ' ' ,  m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = man.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE dep.name = '${answer.department}' ORDER BY ID ASC`;
           connection.query(query, (err, res) => {
             if (err) return err;
 
@@ -175,7 +159,7 @@ function viewAllEmpByRole() {
           choices: roleArr,
         })
         .then((answer) => {
-          const query = `SELECT emp.id AS ID, emp.first_name AS 'First Name', emp.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(man.first_name, ' ' ,  man.last_name) AS Manager FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dep.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
+          const query = `SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(m.first_name, ' ' ,  m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
           connection.query(query, (err, res) => {
             if (err) return err;
 
@@ -197,7 +181,7 @@ function addEmp() {
       return Promise.all([
         conn.query("SELECT id, title FROM role ORDER BY title ASC"),
         conn.query(
-          "SELECT emp.id, concat(emp.first_name, ' ' ,  emp.last_name) AS Employee FROM employee ORDER BY Employee ASC"
+          "SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC"
         ),
       ]);
     })
@@ -424,7 +408,7 @@ function updateEmpRole() {
           {
             name: "role",
             type: "list",
-            message: "What is their new role?",
+            message: "New Role?",
             choices: roleArr,
           },
         ])
@@ -545,7 +529,7 @@ function viewAllEmpByMngr() {
     .then((conn) => {
       // Query all employees
       return conn.query(
-        "SELECT DISTINCT man.id, CONCAT(m.first_name, ' ', man.last_name) AS manager FROM employee e Inner JOIN employee m ON e.manager_id = man.id"
+        "SELECT DISTINCT m.id, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e Inner JOIN employee m ON e.manager_id = m.id"
       );
     })
     .then(function (managers) {
@@ -575,12 +559,12 @@ function viewAllEmpByMngr() {
           }
 
           // query all employees by selected manager
-          const query = `SELECT emp.id, emp.first_name, emp.last_name, role.title, department.name AS department, role.salary, concat(man.first_name, ' ' ,  man.last_name) AS manager
+          const query = `SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager
             FROM employee e
-            LEFT JOIN employee m ON emp.manager_id = man.id
-            INNER JOIN role ON emp.role_id = role.id
-            INNER JOIN department ON role.department_id = dep.id
-            WHERE emp.manager_id = ${managerID};`;
+            LEFT JOIN employee m ON e.manager_id = m.id
+            INNER JOIN role ON e.role_id = role.id
+            INNER JOIN department ON role.department_id = department.id
+            WHERE e.manager_id = ${managerID};`;
 
           connection.query(query, (err, res) => {
             if (err) return err;
@@ -592,287 +576,5 @@ function viewAllEmpByMngr() {
             mainMenu();
           });
         });
-    });
-}
-///////////////////////////////////////////////////////////
-
-// Deletes employee
-function deleteEmp() {
-  // Create global employee array
-  let employeeArr = [];
-
-  promiseMySql
-    .createConnection(connectionProperties)
-    .then((conn) => {
-      // Query all employees
-      return conn.query(
-        "SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS employee FROM employee ORDER BY Employee ASC"
-      );
-    })
-    .then((employees) => {
-      for (i = 0; i < employees.length; i++) {
-        employeeArr.push(employees[i].employee);
-      }
-
-      inquirer
-        .prompt([
-          {
-            // prompts all employees
-            name: "employee",
-            type: "list",
-            message: "Who would you like to delete?",
-            choices: employeeArr,
-          },
-          {
-            // confirm delete employee delete
-            name: "yesNo",
-            type: "list",
-            message: "Confirm deletion",
-            choices: ["YES", "NO"],
-          },
-        ])
-        .then((answer) => {
-          if (answer.yesNo == "YES") {
-            let employeeID;
-
-            // Confirmed ID Deletion
-            for (i = 0; i < employees.length; i++) {
-              if (answer.employee == employees[i].employee) {
-                employeeID = employees[i].id;
-              }
-            }
-
-            // deleted selected employee
-            connection.query(
-              `DELETE FROM employee WHERE id=${employeeID};`,
-              (err, res) => {
-                if (err) return err;
-
-                // confirm deleted employee
-                console.log(`\n EMPLOYEE '${answer.employee}' DELETED...\n `);
-
-                // back to main menu
-                mainMenu();
-              }
-            );
-          } else {
-            // if not confirmed, go back to main menu
-            console.log(`\n EMPLOYEE '${answer.employee}' NOT DELETED...\n `);
-
-            // back to main menu
-            mainMenu();
-          }
-        });
-    });
-}
-////////////////////////////////////////////////////////
-
-// Delete Role
-function deleteRole() {
-  // role array
-  let roleArr = [];
-
-  promiseMySql
-    .createConnection(connectionProperties)
-    .then((conn) => {
-      // query all roles
-      return conn.query("SELECT id, title FROM role");
-    })
-    .then((roles) => {
-      for (i = 0; i < roles.length; i++) {
-        roleArr.push(roles[i].title);
-      }
-
-      inquirer
-        .prompt([
-          {
-            name: "continueDelete",
-            type: "list",
-            message:
-              "*** WARNING *** Deleting role will delete all employees associated with the role. Do you want to continue?",
-            choices: ["YES", "NO"],
-          },
-        ])
-        .then((answer) => {
-          if (answer.continueDelete === "NO") {
-            mainMenu();
-          }
-        })
-        .then(() => {
-          inquirer
-            .prompt([
-              {
-                // prompt user of of roles
-                name: "role",
-                type: "list",
-                message: "Which role would you like to delete?",
-                choices: roleArr,
-              },
-              {
-                // Type role to confirm delete
-                name: "confirmDelete",
-                type: "Input",
-                message:
-                  "Type the role title EXACTLY to confirm deletion of the role",
-              },
-            ])
-            .then((answer) => {
-              if (answer.confirmDelete === answer.role) {
-                let roleID;
-                for (i = 0; i < roles.length; i++) {
-                  if (answer.role == roles[i].title) {
-                    roleID = roles[i].id;
-                  }
-                }
-
-                // delete role
-                connection.query(
-                  `DELETE FROM role WHERE id=${roleID};`,
-                  (err, res) => {
-                    if (err) return err;
-
-                    // confirm role has been added
-                    console.log(`\n ROLE '${answer.role}' DELETED...\n `);
-
-                    mainMenu();
-                  }
-                );
-              } else {
-                console.log(`\n ROLE '${answer.role}' NOT DELETED...\n `);
-
-                mainMenu();
-              }
-            });
-        });
-    });
-}
-////////////////////////////////////////////////////////////////////
-
-// Delete Department
-function deleteDept() {
-  let deptArr = [];
-
-  promiseMySql
-    .createConnection(connectionProperties)
-    .then((conn) => {
-      return conn.query("SELECT id, name FROM department");
-    })
-    .then((depts) => {
-      for (i = 0; i < depts.length; i++) {
-        deptArr.push(depts[i].name);
-      }
-
-      inquirer
-        .prompt([
-          {
-            // confirm to continue to select department to delete
-            name: "continueDelete",
-            type: "list",
-            message:
-              "*** WARNING *** Deleting a department will delete all roles and employees associated with the department. Do you want to continue?",
-            choices: ["YES", "NO"],
-          },
-        ])
-        .then((answer) => {
-          // if not, go back to main menu
-          if (answer.continueDelete === "NO") {
-            mainMenu();
-          }
-        })
-        .then(() => {
-          inquirer
-            .prompt([
-              {
-                // User selects department
-                name: "dept",
-                type: "list",
-                message: "Which department would you like to delete?",
-                choices: deptArr,
-              },
-              {
-                // User deletes
-                name: "confirmDelete",
-                type: "Input",
-                message:
-                  "Type the department name EXACTLY to confirm deletion of the department: ",
-              },
-            ])
-            .then((answer) => {
-              if (answer.confirmDelete === answer.dept) {
-                // Depeartment Deletion by ID
-                let deptID;
-                for (i = 0; i < depts.length; i++) {
-                  if (answer.dept == depts[i].name) {
-                    deptID = depts[i].id;
-                  }
-                }
-
-                // delete department
-                connection.query(
-                  `DELETE FROM department WHERE id=${deptID};`,
-                  (err, res) => {
-                    if (err) return err;
-
-                    // confirm department has been deleted
-                    console.log(`\n DEPARTMENT '${answer.dept}' DELETED...\n `);
-
-                    mainMenu();
-                  }
-                );
-              } else {
-                console.log(`\n DEPARTMENT '${answer.dept}' NOT DELETED...\n `);
-
-                //back to main menu
-                mainMenu();
-              }
-            });
-        });
-    });
-}
-//////////////////////////////////////////////////////////////
-
-//  Department Budget
-function viewDeptBudget() {
-  promiseMySql
-    .createConnection(connectionProperties)
-    .then((conn) => {
-      return Promise.all([
-        // Departments and Salaries
-        conn.query(
-          "SELECT department.name AS department, role.salary FROM employee e LEFT JOIN employee m ON emp.manager_id = man.id INNER JOIN role ON emp.role_id = role.id INNER JOIN department ON role.department_id = dept.id ORDER BY department ASC"
-        ),
-        conn.query("SELECT name FROM department ORDER BY name ASC"),
-      ]);
-    })
-    .then(([deptSalaies, departments]) => {
-      let deptBudgetArr = [];
-      let department;
-
-      for (d = 0; d < departments.length; d++) {
-        let departmentBudget = 0;
-
-        // add all salaries together
-        for (i = 0; i < deptSalaies.length; i++) {
-          if (departments[d].name == deptSalaies[i].department) {
-            departmentBudget += deptSalaies[i].salary;
-          }
-        }
-
-        // create new property with budgets
-        department = {
-          Department: departments[d].name,
-          Budget: departmentBudget,
-        };
-
-        // add to array
-        deptBudgetArr.push(department);
-      }
-      console.log("\n");
-
-      // display departments budgets using console.table
-      console.table(deptBudgetArr);
-
-      // back to main menu
-      mainMenu();
     });
 }
