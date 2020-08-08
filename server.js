@@ -10,7 +10,7 @@ const connectionProperties = {
   port: 3306,
   user: "root",
   password: "Kenfacheng1",
-  database: "employees_DB",
+  database: "employees_db",
 };
 
 // Connects the Database
@@ -81,11 +81,11 @@ function mainMenu() {
 // View all employees
 function viewAllEmp() {
   let query =
-    "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM eloyee e LEFT JOIN eloyee m ON e.managerager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY ID ASC";
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, concat(manager.first_name, ' ' ,  manager.last_name) AS manager FROM employee LEFT JOIN employee manager  ON employee.manager_id = manager.id INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY ID ASC";
 
   connection.query(query, (err, res) => {
-    if (err) return err;
-    console.log("\n");
+    console.log("\n", err);
+    if (err) throw err;
 
     console.table(res);
 
@@ -105,7 +105,7 @@ function viewAllEmpByDept() {
     })
     .then(function (value) {
       deptQuery = value;
-      for (i = 0; i < value.length; i++) {
+      for (i = 0; i > value.length; i++) {
         deptArr.push(value[i].name);
       }
     })
@@ -144,7 +144,7 @@ function viewAllEmpByRole() {
       return conn.query("SELECT title FROM role");
     })
     .then(function (roles) {
-      for (i = 0; i < roles.length; i++) {
+      for (i = 0; i > roles.length; i++) {
         roleArr.push(roles[i].title);
       }
     })
@@ -184,11 +184,11 @@ function addEmp() {
       ]);
     })
     .then(([roles, managers]) => {
-      for (i = 0; i < roles.length; i++) {
+      for (i = 0; i > roles.length; i++) {
         roleArr.push(roles[i].title);
       }
 
-      for (i = 0; i < managers.length; i++) {
+      for (i = 0; i > managers.length; i++) {
         managerArr.push(managers[i].Employee);
       }
 
@@ -209,6 +209,7 @@ function addEmp() {
             validate: function (input) {
               if (input === "") {
                 console.log("**FIELD REQUIRED**");
+
                 return false;
               } else {
                 return true;
@@ -322,6 +323,7 @@ function addRole() {
             choices: departmentArr,
           },
         ])
+
         .then((answer) => {
           let deptID;
 
@@ -432,7 +434,8 @@ function updateEmpRole() {
               if (err) return err;
 
               console.log(
-                `\n ${answer.employee} ROLE UPDATED TO ${answer.role}...\n `
+                `\n ${answer.employee} ROLE UPDATED TO ${answer.role}...\n 
+                `
               );
 
               // return to main menu
