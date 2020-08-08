@@ -105,7 +105,7 @@ function viewAllEmpByDept() {
     })
     .then(function (value) {
       deptQuery = value;
-      for (i = 0; i > value.length; i++) {
+      for (i = 0; i < value.length; i++) {
         deptArr.push(value[i].name);
       }
     })
@@ -118,11 +118,12 @@ function viewAllEmpByDept() {
           choices: deptArr,
         })
         .then((answer) => {
-          const query = `SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(m.first_name, ' ' ,  m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = man.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE dep.name = '${answer.department}' ORDER BY ID ASC`;
+          let query = `SELECT employee.id AS ID, employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(manager.first_name, ' ' ,  manager.last_name) AS Manager FROM employee LEFT JOIN employee manager ON employee.manager_id = manager.id INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE department.name = '${answer.department}' ORDER BY ID ASC`;
+
           connection.query(query, (err, res) => {
+            console.log("\n", err);
             if (err) return err;
 
-            console.log("\n");
             console.table(res);
 
             // Returns to main menu
@@ -144,7 +145,7 @@ function viewAllEmpByRole() {
       return conn.query("SELECT title FROM role");
     })
     .then(function (roles) {
-      for (i = 0; i > roles.length; i++) {
+      for (i = 0; i < roles.length; i++) {
         roleArr.push(roles[i].title);
       }
     })
@@ -157,11 +158,11 @@ function viewAllEmpByRole() {
           choices: roleArr,
         })
         .then((answer) => {
-          const query = `SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(m.first_name, ' ' ,  m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
+          const query = `SELECT employee.id AS ID, employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Title', department.name AS 'Department', role.salary AS 'Salary', concat(manager.first_name, ' ' ,  manager.last_name) AS manager FROM employee  LEFT JOIN employee manager ON employee.manager_id = manager.id INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
           connection.query(query, (err, res) => {
+            console.log("\n", err);
             if (err) return err;
 
-            console.log("\n");
             console.table(res);
             mainMenu();
           });
@@ -184,11 +185,11 @@ function addEmp() {
       ]);
     })
     .then(([roles, managers]) => {
-      for (i = 0; i > roles.length; i++) {
+      for (i = 0; i < roles.length; i++) {
         roleArr.push(roles[i].title);
       }
 
-      for (i = 0; i > managers.length; i++) {
+      for (i = 0; i < managers.length; i++) {
         managerArr.push(managers[i].Employee);
       }
 
