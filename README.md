@@ -1,6 +1,6 @@
 # EmployeeDatabase
 
-#Description
+# Description
 A simple database for a company to help track its employees. The database is organized by "Department" , "Role", "Employee" Each category leads to other sub-categories("name" "id" "manager_id" etc...). You're also allowed to add employees, roles, department as needed.
 
 # Requires
