@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "console.table": "^0.10.0",
     "heroku": "^7.42.6",
     "inquirer": "^7.3.3",
